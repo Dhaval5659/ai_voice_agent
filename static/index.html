@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head><title>Voice Bot Test</title></head>
+<body>
+  <h2>Voice Bot Test</h2>
+  <button id="startBtn">Start Talking</button>
+  <button id="stopBtn" disabled>Stop</button>
+  <p id="status">Idle</p>
+
+  <script>
+    let ws, audioContext, mediaStream, processor;
+
+    document.getElementById("startBtn").onclick = async () => {
+      ws = new WebSocket("ws://localhost:8000/ws/voice");
+      ws.binaryType = "arraybuffer";
+
+      ws.onopen = async () => {
+        document.getElementById("status").innerText = "Connected — speak now";
+        mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        audioContext = new AudioContext({ sampleRate: 16000 });
+        const source = audioContext.createMediaStreamSource(mediaStream);
+        processor = audioContext.createScriptProcessor(4096, 1, 1);
+
+        source.connect(processor);
+        processor.connect(audioContext.destination);
+
+        processor.onaudioprocess = (e) => {
+          const input = e.inputBuffer.getChannelData(0);
+          const pcm16 = new Int16Array(input.length);
+          for (let i = 0; i < input.length; i++) {
+            pcm16[i] = Math.max(-32768, Math.min(32767, input[i] * 32768));
+          }
+          if (ws.readyState === WebSocket.OPEN) {
+            ws.send(pcm16.buffer);
+          }
+        };
+      };
+
+      // Play audio chunks the bot sends back
+      const audioQueue = [];
+      let playing = false;
+      ws.onmessage = async (event) => {
+        audioQueue.push(event.data);
+        if (!playing) playNext();
+      };
+      async function playNext() {
+        if (audioQueue.length === 0) { playing = false; return; }
+        playing = true;
+        const buf = await audioContext.decodeAudioData(audioQueue.shift());
+        const src = audioContext.createBufferSource();
+        src.buffer = buf;
+        src.connect(audioContext.destination);
+        src.onended = playNext;
+        src.start();
+      }
+
+      document.getElementById("startBtn").disabled = true;
+      document.getElementById("stopBtn").disabled = false;
+    };
+
+    document.getElementById("stopBtn").onclick = () => {
+      if (processor) processor.disconnect();
+      if (mediaStream) mediaStream.getTracks().forEach(t => t.stop());
+      if (ws) ws.close();
+      document.getElementById("status").innerText = "Stopped";
+      document.getElementById("startBtn").disabled = false;
+      document.getElementById("stopBtn").disabled = true;
+    };
+  </script>
+</body>
+</html>

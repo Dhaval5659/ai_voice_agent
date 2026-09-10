@@ -1,1 +1,34 @@
+# Environment variables and secrets
 .env
+.env.*
+
+# Python bytecode and caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+venv/
+.venv/
+env/
+
+# Node.js dependencies and logs
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build outputs
+dist/
+.vite/
+
+# Generated audio files from testing / pipeline runs
+temp_incoming.m4a
+followup.m4a
+reply_audio.mp3
+server_reply*.mp3
+
+# Operating System & IDE files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

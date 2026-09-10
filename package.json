@@ -1,0 +1,26 @@
+{
+  "name": "ai_voice_agent",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Dhaval5659/ai_voice_agent.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Dhaval5659/ai_voice_agent/issues"
+  },
+  "homepage": "https://github.com/Dhaval5659/ai_voice_agent#readme",
+  "dependencies": {
+    "@pipecat-ai/client-js": "^1.13.1",
+    "@pipecat-ai/websocket-transport": "^1.7.1",
+    "vite": "^8.2.2"
+  }
+}
